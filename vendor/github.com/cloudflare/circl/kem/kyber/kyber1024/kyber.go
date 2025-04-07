@@ -106,9 +106,7 @@ func GenerateKeyPair(rand io.Reader) (*PublicKey, *PrivateKey, error) {
 func (pk *PublicKey) EncapsulateTo(ct, ss []byte, seed []byte) {
 	if seed == nil {
 		seed = make([]byte, EncapsulationSeedSize)
-		if _, err := cryptoRand.Read(seed[:]); err != nil {
-			panic(err)
-		}
+		cryptoRand.Read(seed[:])
 	} else {
 		if len(seed) != EncapsulationSeedSize {
 			panic("seed must be of length EncapsulationSeedSize")
@@ -298,7 +296,7 @@ func (sk *PrivateKey) Equal(other kem.PrivateKey) bool {
 		return false
 	}
 	if !bytes.Equal(sk.hpk[:], oth.hpk[:]) ||
-		subtle.ConstantTimeCompare(sk.z[:], oth.z[:]) != 1 {
+		!bytes.Equal(sk.z[:], oth.z[:]) {
 		return false
 	}
 	return sk.sk.Equal(oth.sk)
